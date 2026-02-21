@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐭 Ratto Hub - Scripts Roblox</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                <span>RATTO HUB</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Scripts</a>
+                <a href="obfuscator.html" class="nav-link">Obfuscador</a>
+            </nav>
+            <div class="user-area">
+                <button class="btn-login" onclick="window.location='login.html'">
+                    <i class="fas fa-user"></i> Login
+                </button>
+                <button class="btn-upload" onclick="checkLogin()">
+                    <i class="fas fa-upload"></i> Postar Script
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search" placeholder="O que você procura?">
+            </div>
+            <button class="btn-choose-game">
+                <i class="fas fa-gamepad"></i> ESCOLHA SEU JOGO
+            </button>
+        </div>
+    </section>
+
+    <!-- Games Grid -->
+    <main class="main">
+        <div class="container">
+            <div class="games-grid" id="games-grid">
+                <!-- Games will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <h3>Avaliações</h3>
+            <p>Veja o feedback de quem já comprou com a gente.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Ratto Hub. Made with ❤️ by ravelitocove66</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="games.js"></script>
+    <script src="realscripts.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
