@@ -1,9 +1,12 @@
 // APP PRINCIPAL RATTO HUB
 
-// Render games
+// Render games - CHAMADO AUTOMATICAMENTE
 function renderGames() {
     const grid = document.getElementById('games-grid');
     if (!grid) return;
+
+    // Limpar grid
+    grid.innerHTML = '';
 
     GAMES.forEach(game => {
         const card = document.createElement('div');
@@ -22,18 +25,20 @@ function renderGames() {
         
         grid.appendChild(card);
     });
+    
+    console.log(`✅ ${GAMES.length} jogos carregados!`);
 }
 
 // Mostrar scripts do jogo
 function showScripts(game) {
-    const main = document.querySelector('.main .container');
+    const mainContainer = document.getElementById('main-container');
     
     // Pegar os 22 scripts do jogo
     const gameScripts = ALL_SCRIPTS[game.id] || [];
     const userScripts = JSON.parse(localStorage.getItem('userScripts') || '[]')
         .filter(s => s.gameId === game.id);
     
-    main.innerHTML = `
+    mainContainer.innerHTML = `
         <button class="btn-back" onclick="location.reload()">
             <i class="fas fa-arrow-left"></i> Voltar
         </button>
@@ -106,26 +111,12 @@ function copyScriptById(scriptId) {
     }
 }
 
-// Ver script
-function viewScript(gameId, type) {
-    const script = REAL_SCRIPTS[gameId];
-    showModal('Script Oficial', script);
-}
-
 function viewUserScript(scriptId) {
     const scripts = JSON.parse(localStorage.getItem('userScripts') || '[]');
     const script = scripts.find(s => s.id === scriptId);
     if (script) {
         showModal(script.name, script.code);
     }
-}
-
-// Copiar script
-function copyScript(gameId) {
-    const script = REAL_SCRIPTS[gameId];
-    navigator.clipboard.writeText(script).then(() => {
-        showNotification('✅ Script copiado!', 'success');
-    });
 }
 
 // Modal de visualização
@@ -147,7 +138,7 @@ function showModal(title, code) {
                 <button class="btn-copy-modal" onclick="copyFromModal(this)">
                     <i class="fas fa-copy"></i> Copiar Script
                 </button>
-                <button class="btn-download-modal" onclick="downloadScript('${title}', \`${code}\`)">
+                <button class="btn-download-modal" onclick="downloadScript('${title}', \`${code.replace(/`/g, '\\`')}\`)">
                     <i class="fas fa-download"></i> Baixar .lua
                 </button>
             </div>
@@ -340,57 +331,16 @@ style.textContent = `
     
     .page-title {
         font-size: 36px;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
         background: linear-gradient(135deg, #00aaff, #0080ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
-    .script-official {
-        background: linear-gradient(135deg, rgba(0, 170, 255, 0.1), rgba(0, 128, 255, 0.05));
-        border: 2px solid #00aaff;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .script-badge {
-        background: linear-gradient(135deg, #ffd700, #ffed4e);
-        color: #000;
-        padding: 5px 15px;
-        border-radius: 20px;
-        display: inline-block;
-        font-weight: 700;
-        margin-bottom: 15px;
-    }
-    
-    .script-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-    }
-    
-    .btn-view,
-    .btn-copy {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .btn-view {
-        background: linear-gradient(135deg, #00aaff, #0080ff);
-        color: #fff;
-    }
-    
-    .btn-copy {
-        background: rgba(0, 170, 255, 0.2);
-        border: 1px solid #00aaff;
-        color: #00aaff;
+    .no-scripts {
+        color: #8b9dc3;
+        text-align: center;
+        padding: 40px;
     }
     
     @keyframes slideIn {
@@ -405,5 +355,18 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Inicializar
-renderGames();
+// INICIALIZAR AUTOMATICAMENTE
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Ratto Hub iniciando...');
+    renderGames();
+    console.log('✅ Ratto Hub carregado!');
+});
+
+// Fallback se DOMContentLoaded já passou
+if (document.readyState === 'loading') {
+    // Ainda carregando, aguardar DOMContentLoaded
+} else {
+    // DOM já carregado, executar imediatamente
+    renderGames();
+                                 }
+    
