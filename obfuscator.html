@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obfuscador - Ratto Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .obfuscator-page {
+            min-height: 100vh;
+            padding: 100px 20px 40px;
+        }
+        
+        .obf-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .obf-title {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #00aaff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .obf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .obf-panel {
+            background: #0f1229;
+            border: 2px solid rgba(0, 170, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .obf-panel h3 {
+            color: #00aaff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .obf-panel textarea {
+            width: 100%;
+            min-height: 400px;
+            background: #0a0e27;
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .obf-panel textarea:focus {
+            outline: none;
+            border-color: #00aaff;
+        }
+        
+        .obf-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            align-items: center;
+        }
+        
+        .obf-controls select {
+            flex: 1;
+            padding: 12px;
+            background: #0a0e27;
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .btn-obfuscate {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #00aaff, #0080ff);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .obf-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .obf-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-copy-obf {
+            background: rgba(0, 170, 255, 0.2);
+            border: 1px solid #00aaff;
+            color: #00aaff;
+        }
+        
+        .btn-download-obf {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .obf-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="window.location='index.html'" style="cursor: pointer;">
+                <i class="fas fa-code"></i>
+                <span>RATTO HUB</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Scripts</a>
+                <a href="obfuscator.html" class="nav-link active">Obfuscador</a>
+            </nav>
+            <div class="user-area">
+                <button class="btn-login" onclick="window.location='login.html'">
+                    <i class="fas fa-user"></i> Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Obfuscator -->
+    <div class="obfuscator-page">
+        <div class="obf-container">
+            <h1 class="obf-title">
+                <i class="fas fa-lock"></i> Obfuscador de Scripts Lua
+            </h1>
+            
+            <div class="obf-grid">
+                <!-- Input -->
+                <div class="obf-panel">
+                    <h3><i class="fas fa-code"></i> Script Original</h3>
+                    <textarea id="input-script" placeholder="Cole seu script Lua aqui..."></textarea>
+                    <div class="obf-controls">
+                        <select id="obf-level">
+                            <option value="1">🟢 Nível 1 - Básico</option>
+                            <option value="2">🟡 Nível 2 - Médio</option>
+                            <option value="3" selected>🟠 Nível 3 - Avançado</option>
+                            <option value="4">🔴 Nível 4 - Extremo</option>
+                        </select>
+                        <button class="btn-obfuscate" onclick="obfuscateScript()">
+                            <i class="fas fa-lock"></i> Ofuscar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Output -->
+                <div class="obf-panel">
+                    <h3><i class="fas fa-lock"></i> Script Ofuscado</h3>
+                    <textarea id="output-script" placeholder="Resultado aparecerá aqui..." readonly></textarea>
+                    <div class="obf-actions">
+                        <button class="btn-copy-obf" onclick="copyObfuscated()">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                        <button class="btn-download-obf" onclick="downloadObfuscated()">
+                            <i class="fas fa-download"></i> Baixar .lua
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Ratto Hub. Made with ❤️ by ravelitocove66</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function obfuscateScript() {
+            const input = document.getElementById('input-script').value;
+            const level = parseInt(document.getElementById('obf-level').value);
+            
+            if (!input.trim()) {
+                alert('Cole um script primeiro!');
+                return;
+            }
+            
+            let result = input;
+            
+            // Nível 1: Básico
+            if (level >= 1) {
+                result = result.replace(/--.*$/gm, ''); // Remove comentários
+                result = result.replace(/\s+/g, ' '); // Remove espaços extras
+            }
+            
+            // Nível 2: Médio  
+            if (level >= 2) {
+                result = result.replace(/local\s+(\w+)/g, (m, v) => `local _${Math.random().toString(36).substr(2, 8)}`);
+            }
+            
+            // Nível 3: Avançado
+            if (level >= 3) {
+                const header = `local _G=getfenv();local _R=math.random;`;
+                result = header + result;
+            }
+            
+            // Nível 4: Extremo
+            if (level >= 4) {
+                const anti = `local _A=function()if game:GetService("CoreGui"):FindFirstChild("DevConsole")then while true do end end end;_A();`;
+                result = anti + result;
+            }
+            
+            document.getElementById('output-script').value = result;
+            alert('✅ Script ofuscado com sucesso!');
+        }
+        
+        function copyObfuscated() {
+            const output = document.getElementById('output-script');
+            if (!output.value.trim()) {
+                alert('Nada para copiar!');
+                return;
+            }
+            output.select();
+            document.execCommand('copy');
+            alert('✅ Script copiado!');
+        }
+        
+        function downloadObfuscated() {
+            const output = document.getElementById('output-script').value;
+            if (!output.trim()) {
+                alert('Nada para baixar!');
+                return;
+            }
+            const blob = new Blob([output], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'script_ofuscado.lua';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('✅ Download iniciado!');
+        }
+    </script>
+</body>
+</html>
