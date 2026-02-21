@@ -1,12 +1,23 @@
-// APP PRINCIPAL RATTO HUB
+// APP PRINCIPAL RATTO HUB - JOGOS SEMPRE VISÍVEIS
 
-// Render games - CHAMADO AUTOMATICAMENTE
+// Render games - EXECUTA AUTOMATICAMENTE
 function renderGames() {
     const grid = document.getElementById('games-grid');
-    if (!grid) return;
+    if (!grid) {
+        console.log('❌ Grid não encontrado, tentando novamente...');
+        return;
+    }
 
     // Limpar grid
     grid.innerHTML = '';
+
+    if (!GAMES || GAMES.length === 0) {
+        console.log('❌ GAMES não carregado!');
+        grid.innerHTML = '<p style="color: #fff; text-align: center;">Carregando jogos...</p>';
+        return;
+    }
+
+    console.log(`🎮 Renderizando ${GAMES.length} jogos...`);
 
     GAMES.forEach(game => {
         const card = document.createElement('div');
@@ -26,15 +37,21 @@ function renderGames() {
         grid.appendChild(card);
     });
     
-    console.log(`✅ ${GAMES.length} jogos carregados!`);
+    console.log(`✅ ${GAMES.length} jogos renderizados!`);
 }
 
 // Mostrar scripts do jogo
 function showScripts(game) {
     const mainContainer = document.getElementById('main-container');
     
+    // Verificar se ALL_SCRIPTS existe
+    if (!ALL_SCRIPTS || !ALL_SCRIPTS[game.id]) {
+        alert('Scripts não carregados. Recarregue a página.');
+        return;
+    }
+    
     // Pegar os 22 scripts do jogo
-    const gameScripts = ALL_SCRIPTS[game.id] || [];
+    const gameScripts = ALL_SCRIPTS[game.id];
     const userScripts = JSON.parse(localStorage.getItem('userScripts') || '[]')
         .filter(s => s.gameId === game.id);
     
@@ -74,7 +91,7 @@ function showScripts(game) {
             
             <!-- Scripts da Comunidade -->
             <h2 class="section-title">👥 Scripts da Comunidade</h2>
-            <div class="community-scripts" id="community-scripts">
+            <div class="community-scripts">
                 ${userScripts.length === 0 ? 
                     '<p class="no-scripts">Nenhum script postado ainda. Seja o primeiro!</p>' :
                     userScripts.map(s => `
@@ -107,6 +124,15 @@ function copyScriptById(scriptId) {
     if (script) {
         navigator.clipboard.writeText(script.code).then(() => {
             showNotification('✅ Script copiado!', 'success');
+        }).catch(() => {
+            // Fallback para navegadores antigos
+            const textarea = document.createElement('textarea');
+            textarea.value = script.code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showNotification('✅ Script copiado!', 'success');
         });
     }
 }
@@ -132,13 +158,13 @@ function showModal(title, code) {
                 </button>
             </div>
             <div class="modal-body">
-                <pre><code>${code}</code></pre>
+                <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
             </div>
             <div class="modal-footer">
                 <button class="btn-copy-modal" onclick="copyFromModal(this)">
                     <i class="fas fa-copy"></i> Copiar Script
                 </button>
-                <button class="btn-download-modal" onclick="downloadScript('${title}', \`${code.replace(/`/g, '\\`')}\`)">
+                <button class="btn-download-modal" onclick="downloadScript('${title.replace(/'/g, "\\'")}', \`${code.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">
                     <i class="fas fa-download"></i> Baixar .lua
                 </button>
             </div>
@@ -157,6 +183,8 @@ function copyFromModal(btn) {
     const code = btn.closest('.modal-container').querySelector('code').textContent;
     navigator.clipboard.writeText(code).then(() => {
         showNotification('✅ Script copiado!', 'success');
+    }).catch(() => {
+        showNotification('❌ Erro ao copiar', 'error');
     });
 }
 
@@ -187,6 +215,7 @@ function showNotification(message, type) {
         font-weight: 600;
         z-index: 10000;
         animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,170,255,0.3);
     `;
     
     document.body.appendChild(notif);
@@ -197,7 +226,7 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// Pesquisa
+// Pesquisa - OPCIONAL
 const searchInput = document.getElementById('search');
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -220,7 +249,7 @@ style.textContent = `
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.95);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -232,7 +261,7 @@ style.textContent = `
         background: #0f1229;
         border: 2px solid #00aaff;
         border-radius: 16px;
-        max-width: 800px;
+        max-width: 900px;
         width: 100%;
         max-height: 90vh;
         display: flex;
@@ -252,6 +281,7 @@ style.textContent = `
         display: flex;
         align-items: center;
         gap: 10px;
+        font-size: 20px;
     }
     
     .modal-close {
@@ -260,6 +290,17 @@ style.textContent = `
         color: #fff;
         font-size: 24px;
         cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .modal-close:hover {
+        background: rgba(255,0,0,0.2);
     }
     
     .modal-body {
@@ -271,14 +312,15 @@ style.textContent = `
     .modal-body pre {
         background: #0a0e27;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: auto;
+        border: 1px solid rgba(0,170,255,0.2);
     }
     
     .modal-body code {
         color: #00aaff;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
+        font-family: 'Courier New', 'Consolas', monospace;
+        font-size: 13px;
         line-height: 1.6;
     }
     
@@ -292,34 +334,46 @@ style.textContent = `
     .btn-copy-modal,
     .btn-download-modal {
         flex: 1;
-        padding: 12px 20px;
+        padding: 14px 20px;
         border: none;
-        border-radius: 8px;
-        font-weight: 600;
+        border-radius: 10px;
+        font-weight: 700;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
         transition: all 0.3s;
+        font-size: 15px;
     }
     
     .btn-copy-modal {
         background: rgba(0, 170, 255, 0.2);
-        border: 1px solid #00aaff;
+        border: 2px solid #00aaff;
         color: #00aaff;
+    }
+    
+    .btn-copy-modal:hover {
+        background: rgba(0, 170, 255, 0.3);
+        transform: translateY(-2px);
     }
     
     .btn-download-modal {
         background: linear-gradient(135deg, #00aaff, #0080ff);
         color: #fff;
+        border: 2px solid transparent;
+    }
+    
+    .btn-download-modal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,170,255,0.4);
     }
     
     .btn-back {
         padding: 12px 24px;
         background: rgba(0, 170, 255, 0.1);
         border: 1px solid #00aaff;
-        border-radius: 8px;
+        border-radius: 10px;
         color: #00aaff;
         cursor: pointer;
         display: inline-flex;
@@ -327,20 +381,28 @@ style.textContent = `
         gap: 8px;
         margin-bottom: 20px;
         font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-back:hover {
+        background: rgba(0, 170, 255, 0.2);
+        transform: translateX(-5px);
     }
     
     .page-title {
-        font-size: 36px;
+        font-size: 40px;
         margin-bottom: 10px;
         background: linear-gradient(135deg, #00aaff, #0080ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-weight: 900;
     }
     
     .no-scripts {
         color: #8b9dc3;
         text-align: center;
         padding: 40px;
+        font-size: 16px;
     }
     
     @keyframes slideIn {
@@ -352,21 +414,55 @@ style.textContent = `
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(400px); opacity: 0; }
     }
+    
+    @media (max-width: 768px) {
+        .modal-container {
+            max-height: 95vh;
+        }
+        
+        .modal-body code {
+            font-size: 12px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+        }
+    }
 `;
 document.head.appendChild(style);
 
-// INICIALIZAR AUTOMATICAMENTE
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Ratto Hub iniciando...');
-    renderGames();
-    console.log('✅ Ratto Hub carregado!');
-});
+// INICIALIZAR - MÚLTIPLAS TENTATIVAS
+let initAttempts = 0;
+const maxAttempts = 10;
 
-// Fallback se DOMContentLoaded já passou
-if (document.readyState === 'loading') {
-    // Ainda carregando, aguardar DOMContentLoaded
-} else {
-    // DOM já carregado, executar imediatamente
-    renderGames();
-                                 }
+function tryInit() {
+    initAttempts++;
+    console.log(`🔄 Tentativa ${initAttempts} de inicializar...`);
     
+    if (typeof GAMES !== 'undefined' && GAMES.length > 0) {
+        console.log('✅ GAMES carregado!');
+        renderGames();
+        return true;
+    }
+    
+    if (initAttempts < maxAttempts) {
+        console.log('⏳ Aguardando GAMES carregar...');
+        setTimeout(tryInit, 100);
+    } else {
+        console.log('❌ Falha ao carregar GAMES após 10 tentativas');
+        const grid = document.getElementById('games-grid');
+        if (grid) {
+            grid.innerHTML = '<p style="color: #ff4444; text-align: center; padding: 40px;">Erro ao carregar jogos. Recarregue a página.</p>';
+        }
+    }
+}
+
+// Iniciar quando DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInit);
+} else {
+    tryInit();
+}
+
+console.log('🚀 Ratto Hub App.js carregado!');
+                                   
